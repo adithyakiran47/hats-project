@@ -1,18 +1,14 @@
 const mongoose = require('mongoose');
 
-const statusTimelineSchema = new mongoose.Schema({
-  status: { type: String, required: true },
-  updatedAt: { type: Date, default: Date.now }
-});
-const commentSchema = new mongoose.Schema({
-  by: String,
-  text: String,
-  timestamp: { type: Date, default: Date.now }
-});
 const activityLogSchema = new mongoose.Schema({
   role: String,
   comment: String,
   timestamp: { type: Date, default: Date.now }
+});
+
+const statusTimelineSchema = new mongoose.Schema({
+  status: { type: String, required: true },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 const applicationSchema = new mongoose.Schema({
@@ -24,10 +20,15 @@ const applicationSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
   jobRole: String,
   jobType: String,
-  comments: [commentSchema],
-  activityLogs: [activityLogSchema],
+  comments: [{
+    by: String,
+    text: String,
+    timestamp: Date
+  }],
+  activityLogs: [activityLogSchema], // <-- Added for traceability
   statusTimeline: [statusTimelineSchema],
   status: { type: String, default: 'Applied' },
   createdAt: { type: Date, default: Date.now }
 });
+
 module.exports = mongoose.model('Application', applicationSchema);

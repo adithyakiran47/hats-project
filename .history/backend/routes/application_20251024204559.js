@@ -3,11 +3,9 @@ const router = express.Router();
 const Application = require('../models/Application');
 const authenticateJWT = require('../middleware/authenticateJWT');
 
-
 router.use(authenticateJWT);
 
-
-// --- List all applications ---
+// List applications (all for admin/botmimic, own for applicant)
 router.get('/list', async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'botmimic') {
@@ -21,32 +19,15 @@ router.get('/list', async (req, res) => {
   }
 });
 
-
-// --- Create new application ---
+// Create new application
 router.post('/create', async (req, res) => {
   try {
-    let { jobId, jobRole, jobType, comments } = req.body;
-
-    // Normalize jobType to lowercase for consistency
-    if (typeof jobType === 'string') {
-      jobType = jobType.toLowerCase();
-      if (jobType === 'non-technical' || jobType === 'technical') {
-        // valid
-      } else {
-        jobType = 'non-technical'; // fallback default or throw error
-      }
-    } else {
-      jobType = 'non-technical'; // default if missing
-    }
-
-    console.log('Normalized jobType:', jobType);
-
+    const { jobId, jobRole, jobType, comments } = req.body;
     const applicant = {
       name: req.user.name,
       email: req.user.email,
       userId: req.user.id
     };
-
     const processedComments = [];
     if (comments) {
       comments.forEach(c => {
@@ -57,7 +38,6 @@ router.post('/create', async (req, res) => {
         });
       });
     }
-
     const newApplication = new Application({
       applicant,
       jobId,
@@ -72,17 +52,14 @@ router.post('/create', async (req, res) => {
         timestamp: new Date()
       }]
     });
-
     await newApplication.save();
-
     res.status(201).json({ application: newApplication });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-
-// --- Update application status + comments + activity log ---
+// Update application status + comment + activity log
 router.put('/update-status/:id', async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'botmimic') {
@@ -115,8 +92,7 @@ router.put('/update-status/:id', async (req, res) => {
   }
 });
 
-
-// --- DETAILS ROUTE: KEEP THIS LAST ---
+// Get application by ID (KEEP THIS LAST)
 router.get('/:id', async (req, res) => {
   try {
     const app = await Application.findById(req.params.id);
@@ -126,6 +102,5 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 module.exports = router;

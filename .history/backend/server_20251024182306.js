@@ -23,14 +23,8 @@ app.use('/api/auth', authRoutes);
 const applicationRoutes = require('./routes/application');
 app.use('/api/application', applicationRoutes);
 
-const jobRoutes = require('./routes/job');
-app.use('/api/job', jobRoutes);
-
-const botMimicRoutes = require('./routes/botMimicRoutes');
-app.use('/api/botmimic', botMimicRoutes);
-
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-
+const jobRoutes = require('./routes/job');
+app.use('/api/job', jobRoutes);
