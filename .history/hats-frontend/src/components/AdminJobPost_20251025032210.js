@@ -10,7 +10,7 @@ export default function AdminJobPost() {
   
   const [formData, setFormData] = useState({
     title: '',
-    jobType: 'technical'  // lowercase default
+    jobType: 'technical'
   });
 
   useEffect(() => {
@@ -32,8 +32,6 @@ export default function AdminJobPost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting job data:', formData); // Debug log
-    
     try {
       if (editingJob) {
         await api.put(`/job/update/${editingJob._id}`, formData);
@@ -47,8 +45,7 @@ export default function AdminJobPost() {
       setEditingJob(null);
       fetchJobs();
     } catch (err) {
-      console.error('Error saving job:', err.response?.data || err.message);
-      alert('Failed to save job: ' + (err.response?.data?.error || err.message));
+      alert('Failed to save job: ' + err.message);
     }
   };
 
@@ -56,7 +53,7 @@ export default function AdminJobPost() {
     setEditingJob(job);
     setFormData({
       title: job.title,
-      jobType: job.jobType  // Use the actual value from DB
+      jobType: job.jobType
     });
     setShowForm(true);
   };
@@ -122,7 +119,6 @@ export default function AdminJobPost() {
                   <option value="technical">Technical</option>
                   <option value="non-technical">Non-Technical</option>
                 </select>
-                <small className="text-muted">Selected: {formData.jobType}</small>
               </div>
               <button type="submit" className="btn btn-success me-2">
                 {editingJob ? 'Update Job' : 'Create Job'}

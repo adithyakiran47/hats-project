@@ -5,7 +5,7 @@ const authenticateJWT = require('../middleware/authenticateJWT');
 
 router.use(authenticateJWT);
 
-// get all jobs
+// --- Get all jobs (all roles can view) ---
 router.get('/list', async (req, res) => {
   try {
     const jobs = await Job.find().sort({ createdAt: -1 });
@@ -15,7 +15,7 @@ router.get('/list', async (req, res) => {
   }
 });
 
-// get single job by id
+// --- Get single job by ID ---
 router.get('/:id', async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -26,18 +26,26 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create new job 
+// --- Create new job (Admin only) ---
 router.post('/create', async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Only admins can create jobs' });
     }
 
-    const { title, jobType } = req.body;
+    const { title, jobType, description, requirements, location } = req.body;
 
     const newJob = new Job({
       title,
-      jobType
+      jobType,
+      description,
+      requirements,
+      location,
+      createdBy: {
+        userId: req.user.id,
+        name: req.user.name,
+        email: req.user.email
+      }
     });
 
     await newJob.save();
@@ -47,20 +55,25 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// Update job 
+// --- Update job (Admin only) ---
 router.put('/update/:id', async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Only admins can update jobs' });
     }
 
-    const { title, jobType } = req.body;
+    const { title, jobType, description, requirements, location, status } = req.body;
 
     const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
 
     if (title) job.title = title;
     if (jobType) job.jobType = jobType;
+    if (description) job.description = description;
+    if (requirements) job.requirements = requirements;
+    if (location) job.location = location;
+    if (status) job.status = status;
+    job.updatedAt = new Date();
 
     await job.save();
     res.json({ job });
@@ -69,7 +82,7 @@ router.put('/update/:id', async (req, res) => {
   }
 });
 
-// Delete job
+// --- Delete job (Admin only) ---
 router.delete('/delete/:id', async (req, res) => {
   try {
     if (req.user.role !== 'admin') {

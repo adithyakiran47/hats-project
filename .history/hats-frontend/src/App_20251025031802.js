@@ -35,6 +35,7 @@ const NavigationBar = () => {
             </>
           ) : (
             <>
+              {/* Common for all authenticated users */}
               <span className="me-3 text-muted">
                 Welcome, <strong>{authData.user.name}</strong> ({userRole})
               </span>
@@ -90,25 +91,23 @@ const AppRoutes = () => {
         } 
       />
 
-      {/* Job Browsing - Applicants only */}
+      {/* Applicant Routes */}
       <Route 
         path="/jobs" 
         element={authData && userRole === 'applicant' ? <JobListWithApply /> : <Navigate to="/login" />} 
       />
-
-      {/* Application Form - Applicants only */}
       <Route 
         path="/apply" 
         element={authData && userRole === 'applicant' ? <ApplicationCreate /> : <Navigate to="/login" />} 
       />
 
-      {/* Applications List - All authenticated users */}
+      {/* Applications - All authenticated users can view */}
       <Route 
         path="/applications" 
         element={authData ? <ApplicationList /> : <Navigate to="/login" />} 
       />
 
-      {/* Admin Job Management */}
+      {/* Admin Routes */}
       <Route 
         path="/admin/jobs" 
         element={authData && userRole === 'admin' ? <AdminJobPost /> : <Navigate to="/" />} 

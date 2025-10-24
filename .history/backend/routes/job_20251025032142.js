@@ -5,7 +5,7 @@ const authenticateJWT = require('../middleware/authenticateJWT');
 
 router.use(authenticateJWT);
 
-// get all jobs
+// --- Get all jobs ---
 router.get('/list', async (req, res) => {
   try {
     const jobs = await Job.find().sort({ createdAt: -1 });
@@ -15,7 +15,7 @@ router.get('/list', async (req, res) => {
   }
 });
 
-// get single job by id
+// --- Get single job by ID ---
 router.get('/:id', async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create new job 
+// --- Create new job (Admin only) ---
 router.post('/create', async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -47,7 +47,7 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// Update job 
+// --- Update job (Admin only) ---
 router.put('/update/:id', async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -69,7 +69,7 @@ router.put('/update/:id', async (req, res) => {
   }
 });
 
-// Delete job
+// --- Delete job (Admin only) ---
 router.delete('/delete/:id', async (req, res) => {
   try {
     if (req.user.role !== 'admin') {

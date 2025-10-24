@@ -10,7 +10,11 @@ export default function AdminJobPost() {
   
   const [formData, setFormData] = useState({
     title: '',
-    jobType: 'technical'  // lowercase default
+    jobType: 'technical',
+    description: '',
+    requirements: '',
+    location: '',
+    status: 'active'
   });
 
   useEffect(() => {
@@ -32,8 +36,6 @@ export default function AdminJobPost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting job data:', formData); // Debug log
-    
     try {
       if (editingJob) {
         await api.put(`/job/update/${editingJob._id}`, formData);
@@ -42,13 +44,12 @@ export default function AdminJobPost() {
         await api.post('/job/create', formData);
         alert('Job created successfully!');
       }
-      setFormData({ title: '', jobType: 'technical' });
+      setFormData({ title: '', jobType: 'technical', description: '', requirements: '', location: '', status: 'active' });
       setShowForm(false);
       setEditingJob(null);
       fetchJobs();
     } catch (err) {
-      console.error('Error saving job:', err.response?.data || err.message);
-      alert('Failed to save job: ' + (err.response?.data?.error || err.message));
+      alert('Failed to save job: ' + err.message);
     }
   };
 
@@ -56,7 +57,11 @@ export default function AdminJobPost() {
     setEditingJob(job);
     setFormData({
       title: job.title,
-      jobType: job.jobType  // Use the actual value from DB
+      jobType: job.jobType,
+      description: job.description || '',
+      requirements: job.requirements || '',
+      location: job.location || '',
+      status: job.status
     });
     setShowForm(true);
   };
@@ -75,7 +80,7 @@ export default function AdminJobPost() {
   const handleCancel = () => {
     setShowForm(false);
     setEditingJob(null);
-    setFormData({ title: '', jobType: 'technical' });
+    setFormData({ title: '', jobType: 'technical', description: '', requirements: '', location: '', status: 'active' });
   };
 
   if (authData?.user.role !== 'admin') {
@@ -85,7 +90,7 @@ export default function AdminJobPost() {
   return (
     <div className="container my-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3>Manage Job Postings</h3>
+        <h3>Job Postings Management</h3>
         {!showForm && (
           <button className="btn btn-primary" onClick={() => setShowForm(true)}>
             + Create New Job
@@ -106,7 +111,6 @@ export default function AdminJobPost() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="e.g., Senior Web Developer"
                   required
                 />
               </div>
@@ -122,7 +126,48 @@ export default function AdminJobPost() {
                   <option value="technical">Technical</option>
                   <option value="non-technical">Non-Technical</option>
                 </select>
-                <small className="text-muted">Selected: {formData.jobType}</small>
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Description</label>
+                <textarea
+                  className="form-control"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows="3"
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Requirements</label>
+                <textarea
+                  className="form-control"
+                  name="requirements"
+                  value={formData.requirements}
+                  onChange={handleInputChange}
+                  rows="3"
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Location</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Status</label>
+                <select
+                  className="form-select"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                >
+                  <option value="active">Active</option>
+                  <option value="closed">Closed</option>
+                </select>
               </div>
               <button type="submit" className="btn btn-success me-2">
                 {editingJob ? 'Update Job' : 'Create Job'}
@@ -136,43 +181,43 @@ export default function AdminJobPost() {
       )}
 
       <div className="table-responsive">
-        <table className="table table-bordered table-hover">
-          <thead className="table-light">
+        <table className="table table-bordered">
+          <thead>
             <tr>
-              <th>Job Title</th>
+              <th>Title</th>
               <th>Type</th>
-              <th>Created Date</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Created</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {jobs.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="text-center text-muted">
-                  No jobs posted yet. Create your first job!
+            {jobs.map(job => (
+              <tr key={job._id}>
+                <td>{job.title}</td>
+                <td>
+                  <span className={`badge ${job.jobType === 'technical' ? 'bg-primary' : 'bg-success'}`}>
+                    {job.jobType}
+                  </span>
+                </td>
+                <td>{job.location || '-'}</td>
+                <td>
+                  <span className={`badge ${job.status === 'active' ? 'bg-success' : 'bg-secondary'}`}>
+                    {job.status}
+                  </span>
+                </td>
+                <td>{new Date(job.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(job)}>
+                    Edit
+                  </button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(job._id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
-            ) : (
-              jobs.map(job => (
-                <tr key={job._id}>
-                  <td>{job.title}</td>
-                  <td>
-                    <span className={`badge ${job.jobType === 'technical' ? 'bg-primary' : 'bg-success'}`}>
-                      {job.jobType === 'technical' ? 'Technical' : 'Non-Technical'}
-                    </span>
-                  </td>
-                  <td>{new Date(job.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(job)}>
-                      Edit
-                    </button>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(job._id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
