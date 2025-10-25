@@ -34,7 +34,7 @@ export default function BotMimicDashboard() {
   };
 
   const handleRunAutomation = async () => {
-  console.log('Button clicked'); 
+  console.log('Button clicked'); // Debug log 1
   
   if (!window.confirm('Run automation for all technical applications with "Applied" status?')) {
     return;
@@ -44,9 +44,9 @@ export default function BotMimicDashboard() {
   setAutomationResult(null);
 
   try {
-    console.log('Sending automation request...'); 
+    console.log('Sending automation request...'); // Debug log 2
     const res = await api.post('/automation/run');
-    console.log('Automation response:', res.data); 
+    console.log('Automation response:', res.data); // Debug log 3
     
     setAutomationResult({
       success: true,
@@ -54,14 +54,14 @@ export default function BotMimicDashboard() {
       count: res.data.updatedCount
     });
     
-    
+    // Refresh stats and logs
     setTimeout(() => {
       fetchStats();
       fetchLogs();
     }, 1000);
   } catch (err) {
-    console.error('Automation error:', err); 
-    console.error('Error response:', err.response?.data); 
+    console.error('Automation error:', err); // Debug log 4
+    console.error('Error response:', err.response?.data); // Debug log 5
     
     setAutomationResult({
       success: false,
@@ -81,7 +81,7 @@ export default function BotMimicDashboard() {
     <div className="container my-4">
       <h2 className="mb-4">Bot Mimic Dashboard - Technical Applications</h2>
 
-      {/* automation result alert */}
+      {/* Automation Result Alert */}
       {automationResult && (
         <div className={`alert alert-${automationResult.success ? 'success' : 'danger'} alert-dismissible fade show`}>
           <strong>{automationResult.success ? 'Success!' : 'Error:'}</strong> {automationResult.message}
@@ -90,7 +90,7 @@ export default function BotMimicDashboard() {
         </div>
       )}
 
-      {/* stats card */}
+      {/* Stats Cards */}
       <div className="row mb-4">
         <div className="col-md-4">
           <div className="card text-center bg-primary text-white">
@@ -120,9 +120,9 @@ export default function BotMimicDashboard() {
         </div>
       </div>
 
-      {/*main content row*/}
+      {/* Main Content Row */}
       <div className="row mb-4">
-        {/* status chart */}
+        {/* Status Chart */}
         <div className="col-md-8">
           <div className="card">
             <div className="card-body">
@@ -141,7 +141,7 @@ export default function BotMimicDashboard() {
           </div>
         </div>
 
-        {/* automation ctrls */}
+        {/* Automation Controls */}
         <div className="col-md-4">
           <div className="card">
             <div className="card-body">
@@ -176,7 +176,7 @@ export default function BotMimicDashboard() {
         </div>
       </div>
 
-      {/* automation logs */}
+      {/* Automation Logs */}
       <div className="card">
         <div className="card-body">
           <h5 className="card-title">Recent Automation Logs</h5>

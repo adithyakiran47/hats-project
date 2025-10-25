@@ -34,43 +34,35 @@ export default function BotMimicDashboard() {
   };
 
   const handleRunAutomation = async () => {
-  console.log('Button clicked'); 
-  
-  if (!window.confirm('Run automation for all technical applications with "Applied" status?')) {
-    return;
-  }
+    if (!window.confirm('Run automation for all technical applications with "Applied" status?')) {
+      return;
+    }
 
-  setAutomating(true);
-  setAutomationResult(null);
+    setAutomating(true);
+    setAutomationResult(null);
 
-  try {
-    console.log('Sending automation request...'); 
-    const res = await api.post('/automation/run');
-    console.log('Automation response:', res.data); 
-    
-    setAutomationResult({
-      success: true,
-      message: res.data.message,
-      count: res.data.updatedCount
-    });
-    
-    
-    setTimeout(() => {
-      fetchStats();
-      fetchLogs();
-    }, 1000);
-  } catch (err) {
-    console.error('Automation error:', err); 
-    console.error('Error response:', err.response?.data); 
-    
-    setAutomationResult({
-      success: false,
-      message: err.response?.data?.error || 'Automation failed'
-    });
-  }
-  setAutomating(false);
-};
-
+    try {
+      const res = await api.post('/automation/run');
+      setAutomationResult({
+        success: true,
+        message: res.data.message,
+        count: res.data.updatedCount,
+        applications: res.data.applications
+      });
+      
+      // Refresh stats and logs after 1 second
+      setTimeout(() => {
+        fetchStats();
+        fetchLogs();
+      }, 1000);
+    } catch (err) {
+      setAutomationResult({
+        success: false,
+        message: err.response?.data?.error || 'Automation failed'
+      });
+    }
+    setAutomating(false);
+  };
 
   if (loading) return <div className="container my-4">Loading dashboard...</div>;
   if (!stats) return <div className="container my-4 text-danger">Failed to load dashboard</div>;
@@ -81,16 +73,33 @@ export default function BotMimicDashboard() {
     <div className="container my-4">
       <h2 className="mb-4">Bot Mimic Dashboard - Technical Applications</h2>
 
-      {/* automation result alert */}
+      {/* Automation Result Alert */}
       {automationResult && (
         <div className={`alert alert-${automationResult.success ? 'success' : 'danger'} alert-dismissible fade show`}>
-          <strong>{automationResult.success ? 'Success!' : 'Error:'}</strong> {automationResult.message}
-          {automationResult.success && ` (${automationResult.count} applications updated)`}
+          <h5 className="alert-heading">
+            {automationResult.success ? '✅ Automation Successful!' : '❌ Automation Failed'}
+          </h5>
+          <p className="mb-0">{automationResult.message}</p>
+          {automationResult.success && automationResult.applications && (
+            <div className="mt-2">
+              <small><strong>Updated Applications:</strong></small>
+              <ul className="mb-0 mt-1">
+                {automationResult.applications.slice(0, 5).map(app => (
+                  <li key={app.id}>
+                    <small>{app.jobRole}: {app.previousStatus} → {app.newStatus}</small>
+                  </li>
+                ))}
+                {automationResult.applications.length > 5 && (
+                  <li><small>... and {automationResult.applications.length - 5} more</small></li>
+                )}
+              </ul>
+            </div>
+          )}
           <button type="button" className="btn-close" onClick={() => setAutomationResult(null)}></button>
         </div>
       )}
 
-      {/* stats card */}
+      {/* Stats Cards */}
       <div className="row mb-4">
         <div className="col-md-4">
           <div className="card text-center bg-primary text-white">
@@ -120,9 +129,9 @@ export default function BotMimicDashboard() {
         </div>
       </div>
 
-      {/*main content row*/}
+      {/* Main Content Row */}
       <div className="row mb-4">
-        {/* status chart */}
+        {/* Status Chart */}
         <div className="col-md-8">
           <div className="card">
             <div className="card-body">
@@ -141,7 +150,7 @@ export default function BotMimicDashboard() {
           </div>
         </div>
 
-        {/* automation ctrls */}
+        {/* Automation Controls */}
         <div className="col-md-4">
           <div className="card">
             <div className="card-body">
@@ -152,13 +161,23 @@ export default function BotMimicDashboard() {
                   onClick={handleRunAutomation}
                   disabled={automating || stats.statusCounts.Applied === 0}
                 >
-                  {automating ? 'Running...' : 'Run Automation'}
+                  {automating ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Running...
+                    </>
+                  ) : (
+                    'Run Automation'
+                  )}
                 </button>
                 <button 
                   className="btn btn-info"
-                  onClick={fetchLogs}
+                  onClick={() => {
+                    fetchStats();
+                    fetchLogs();
+                  }}
                 >
-                  Refresh Logs
+                  Refresh Data
                 </button>
               </div>
               <div className="alert alert-info mt-3 mb-0">
@@ -168,6 +187,7 @@ export default function BotMimicDashboard() {
                     <li>Update status: Applied → Reviewed</li>
                     <li>Add automated comments</li>
                     <li>Log all actions</li>
+                    <li>Only process technical roles</li>
                   </ul>
                 </small>
               </div>
@@ -176,14 +196,14 @@ export default function BotMimicDashboard() {
         </div>
       </div>
 
-      {/* automation logs */}
+      {/* Automation Logs */}
       <div className="card">
         <div className="card-body">
           <h5 className="card-title">Recent Automation Logs</h5>
           {logs.length > 0 ? (
             <div className="table-responsive">
               <table className="table table-sm table-hover">
-                <thead>
+                <thead className="table-light">
                   <tr>
                     <th>Timestamp</th>
                     <th>Application ID</th>
