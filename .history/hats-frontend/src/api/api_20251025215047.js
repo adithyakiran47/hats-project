@@ -1,11 +1,11 @@
 import axios from 'axios';
 import config from '../config';
 
-fetch(`${config.apiUrl}/api/users`)
+//fetch(`${config.apiUrl}/api/users`)
 
-/*const api = axios.create({
+const api = axios.create({
   baseURL: 'http://localhost:5000/api',
-});*/
+});
 
 api.interceptors.request.use(
   (config) => {
