@@ -10,7 +10,6 @@ import ApplicationCreate from './components/ApplicationCreate';
 import ApplicantDashboard from './components/ApplicantDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import BotMimicDashboard from './components/BotMimicDashboard';
-
 const NavigationBar = () => {
   const { authData, setAuthData } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -45,7 +44,6 @@ const NavigationBar = () => {
               {/* Applicant Navigation */}
               {userRole === 'applicant' && (
                 <>
-                  <Link to="/dashboard" className="btn btn-success me-2">Dashboard</Link>
                   <Link to="/jobs" className="btn btn-primary me-2">Browse Jobs</Link>
                   <Link to="/applications" className="btn btn-info me-2">My Applications</Link>
                 </>
@@ -54,7 +52,6 @@ const NavigationBar = () => {
               {/* Admin Navigation */}
               {userRole === 'admin' && (
                 <>
-                  <Link to="/dashboard" className="btn btn-success me-2">Dashboard</Link>
                   <Link to="/admin/jobs" className="btn btn-warning me-2">Manage Jobs</Link>
                   <Link to="/applications" className="btn btn-info me-2">All Applications</Link>
                 </>
@@ -62,10 +59,7 @@ const NavigationBar = () => {
 
               {/* Bot Mimic Navigation */}
               {userRole === 'botmimic' && (
-                <>
-                  <Link to="/dashboard" className="btn btn-success me-2">Dashboard</Link>
-                  <Link to="/applications" className="btn btn-info me-2">Applications</Link>
-                </>
+                <Link to="/applications" className="btn btn-info me-2">Applications</Link>
               )}
 
               <button onClick={handleLogout} className="btn btn-danger btn-sm">Logout</button>
@@ -92,30 +86,19 @@ const AppRoutes = () => {
         path="/" 
         element={
           !authData ? <Navigate to="/login" /> :
-          userRole === 'applicant' ? <Navigate to="/dashboard" /> :
-          userRole === 'admin' ? <Navigate to="/dashboard" /> :
-          userRole === 'botmimic' ? <Navigate to="/dashboard" /> :
-          <Navigate to="/login" />
+          userRole === 'applicant' ? <Navigate to="/jobs" /> :
+          userRole === 'admin' ? <Navigate to="/admin/jobs" /> :
+          <Navigate to="/applications" />
         } 
       />
 
-      {/* Dashboard - Role-based */}
-      <Route 
-        path="/dashboard" 
-        element={
-          !authData ? <Navigate to="/login" /> :
-          userRole === 'applicant' ? <ApplicantDashboard /> :
-          userRole === 'admin' ? <AdminDashboard /> :
-          userRole === 'botmimic' ? <BotMimicDashboard /> :
-          <Navigate to="/login" />
-        } 
-      />
-
-      {/* Applicant Routes */}
+      {/* Job Browsing - Applicants only */}
       <Route 
         path="/jobs" 
         element={authData && userRole === 'applicant' ? <JobListWithApply /> : <Navigate to="/login" />} 
       />
+
+      {/* Application Form - Applicants only */}
       <Route 
         path="/apply" 
         element={authData && userRole === 'applicant' ? <ApplicationCreate /> : <Navigate to="/login" />} 
@@ -127,11 +110,22 @@ const AppRoutes = () => {
         element={authData ? <ApplicationList /> : <Navigate to="/login" />} 
       />
 
-      {/* Admin Routes */}
+      {/* Admin Job Management */}
       <Route 
         path="/admin/jobs" 
         element={authData && userRole === 'admin' ? <AdminJobPost /> : <Navigate to="/" />} 
       />
+      <Route 
+  path="/dashboard" 
+  element={
+    authData ? (
+      userRole === 'applicant' ? <ApplicantDashboard /> :
+      userRole === 'admin' ? <AdminDashboard /> :
+      userRole === 'botmimic' ? <BotMimicDashboard /> :
+      <Navigate to="/login" />
+    ) : <Navigate to="/login" />
+  } 
+/>
 
       {/* Catch-all redirect */}
       <Route path="*" element={<Navigate to="/" />} />
