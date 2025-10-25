@@ -1,12 +1,12 @@
 import axios from 'axios';
 import config from '../config';
 
-// Create an axios instance using the dynamic API URL from your config
+// Create an axios instance with your dynamic API URL
 const api = axios.create({
   baseURL: `${config.apiUrl}/api`
 });
 
-// Add a request interceptor to include JWT token if available
+// Intercept requests to add auth token if present
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
