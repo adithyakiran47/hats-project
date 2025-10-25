@@ -13,7 +13,7 @@ const ApplicationList = () => {
   const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
-    // Decode JWT for the user role
+    // Decode JWT for the user role (assumes JWT is base64 with "role" property)
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -22,7 +22,6 @@ const ApplicationList = () => {
         setUserRole(decoded.role);
       } catch {}
     }
-    
     const fetchApplications = async () => {
       setLoading(true);
       setError('');
@@ -56,66 +55,52 @@ const ApplicationList = () => {
         <div>Loading...</div>
       ) : (
         <table className="table table-bordered table-hover">
-          <thead className="table-light">
+          <thead>
             <tr>
               <th>ID</th>
+              <th>Applicant</th>
               <th>Job Role</th>
-              <th>Job Type</th>
               <th>Status</th>
               <th>Applied On</th>
               <th>Update Status</th>
-              <th>Details</th>
+              <th>Traceability</th>
             </tr>
           </thead>
           <tbody>
-            {applications.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="text-center text-muted">
-                  No applications found
+            {applications.map(app => (
+              <tr key={app._id}>
+                <td>{app._id}</td>
+                <td>{app.jobType?.name}</td>
+                <td>{app.jobRole}</td>
+                <td>{app.status}</td>
+                <td>{new Date(app.createdAt).toLocaleString()}</td>
+                <td>
+                {allowedToUpdate(userRole) ? (
+                  <select
+                    className="form-select"
+                    value={app.status}
+                    onChange={e => handleStatusUpdate(app._id, e.target.value)}
+                  >
+                    <option value="Applied">Applied</option>
+                    <option value="Shortlisted">Shortlisted</option>
+                    <option value="Reviewed">Reviewed</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offer">Offer</option>
+                  </select>
+                ) : (
+                  app.status
+                )}
+                </td>
+                <td>
+                  <button
+                    className="btn btn-info btn-sm"
+                    onClick={() => setSelectedApp(app._id)}
+                  >
+                    View Details
+                  </button>
                 </td>
               </tr>
-            ) : (
-              applications.map(app => (
-                <tr key={app._id}>
-                  <td>{app._id.substring(0, 8)}...</td>
-                  <td>{app.jobRole}</td>
-                  <td>
-                    <span className={`badge ${app.jobType === 'technical' ? 'bg-primary' : 'bg-success'}`}>
-                      {app.jobType === 'technical' ? 'Technical' : 'Non-Technical'}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="badge bg-info">{app.status}</span>
-                  </td>
-                  <td>{new Date(app.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    {allowedToUpdate(userRole) ? (
-                      <select
-                        className="form-select form-select-sm"
-                        value={app.status}
-                        onChange={e => handleStatusUpdate(app._id, e.target.value)}
-                      >
-                        <option value="Applied">Applied</option>
-                        <option value="Reviewed">Reviewed</option>
-                        <option value="Interview">Interview</option>
-                        <option value="Offer">Offer</option>
-                        <option value="Rejected">Rejected</option>
-                      </select>
-                    ) : (
-                      <span className="text-muted">View Only</span>
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-info btn-sm"
-                      onClick={() => setSelectedApp(app._id)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       )}
