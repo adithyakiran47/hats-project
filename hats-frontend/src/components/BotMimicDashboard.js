@@ -73,7 +73,7 @@ export default function BotMimicDashboard() {
     <div className="container my-4">
       <h2 className="mb-4">Bot Mimic Dashboard - Technical Applications</h2>
 
-      {/* Automation Result Alert */}
+      {/* automation result alert */}
       {automationResult && (
         <div className={`alert alert-${automationResult.success ? 'success' : 'danger'} alert-dismissible fade show`}>
           <h5 className="alert-heading">
@@ -99,7 +99,7 @@ export default function BotMimicDashboard() {
         </div>
       )}
 
-      {/* Stats Cards */}
+      {/* stats cards */}
       <div className="row mb-4">
         <div className="col-md-4">
           <div className="card text-center bg-primary text-white">
@@ -129,9 +129,9 @@ export default function BotMimicDashboard() {
         </div>
       </div>
 
-      {/* Main Content Row */}
+      {/* main content row */}
       <div className="row mb-4">
-        {/* Status Chart */}
+        {/* status chart */}
         <div className="col-md-8">
           <div className="card">
             <div className="card-body">
@@ -150,7 +150,7 @@ export default function BotMimicDashboard() {
           </div>
         </div>
 
-        {/* Automation Controls */}
+        {/* automation controls */}
         <div className="col-md-4">
           <div className="card">
             <div className="card-body">
@@ -196,7 +196,7 @@ export default function BotMimicDashboard() {
         </div>
       </div>
 
-      {/* Automation Logs */}
+      {/* automation logs */}
       <div className="card">
         <div className="card-body">
           <h5 className="card-title">Recent Automation Logs</h5>

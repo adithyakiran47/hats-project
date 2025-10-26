@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import config from '../config'; 
+import config from '../config'; // ✅ ADD THIS LINE
 
 
 export default function UpdateStatus({ applicationId, onSuccess }) {
